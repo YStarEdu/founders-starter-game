@@ -1,0 +1,484 @@
+/* Star Catcher styles. The game itself is drawn on the canvas (see src/draw.js);
+   this file styles everything around it: the score bar, the screens and the buttons.
+   To restyle, start with the colours in :root. */
+
+/* ---------- 1. Colours and fonts ---------- */
+:root {
+  --color-page: #040b1d;
+  --color-panel: rgba(6, 16, 42, 0.9);
+  --color-panel-border: rgba(255, 255, 255, 0.16);
+  --color-text: #ffffff;
+  --color-muted: #c9d3ea;
+  --color-accent: #ffd54a;
+  --color-accent-dark: #f2b600;
+  --color-accent-text: #1b1300;
+  --color-error: #ffb4b4;
+  --color-focus: #8ccfff;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------- 2. Basics ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Elements with the hidden attribute stay hidden, even if another rule gives them a display value. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  height: 100%;
+}
+
+/* The game fills the screen: the body is exactly as tall as the window and never scrolls. */
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.local-banner {
+  margin: 0;
+  padding: 0.375rem 1rem;
+  background: #fff3c4;
+  color: #5c4400;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+/* ---------- 3. The game area ---------- */
+/* On a laptop the game is a column in the middle, about as wide as a big phone. */
+.game {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: 40rem;
+  min-height: 0;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+#canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* dragging moves the basket instead of scrolling or zooming the page */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- 4. The score bar (HUD) ---------- */
+.hud {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem 1.25rem;
+  background: linear-gradient(rgba(4, 11, 29, 0.85), rgba(4, 11, 29, 0));
+  pointer-events: none; /* taps go through to the game... */
+}
+
+.hud > * {
+  pointer-events: auto; /* ...except on the score bar's own text and buttons */
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.stat-label {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stat strong,
+.lives {
+  font-size: 1.375rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.lives {
+  color: var(--color-accent);
+  letter-spacing: 0.08em;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-panel-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#pause-button {
+  margin-left: auto; /* pushes the two buttons to the right */
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* The sound button shows one icon or the other, depending on aria-pressed. */
+#sound-button[aria-pressed="true"] .icon-sound-off,
+#sound-button[aria-pressed="false"] .icon-sound-on {
+  display: none;
+}
+
+/* ---------- 5. The screens: start, pause and round over ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  padding: 4.5rem 1rem 1.5rem;
+  overflow-y: auto;
+  background: rgba(4, 11, 29, 0.55);
+}
+
+.panel {
+  width: 100%;
+  max-width: 24rem;
+  margin: auto;
+  padding: 1.5rem 1.25rem;
+  border: 1px solid var(--color-panel-border);
+  border-radius: 20px;
+  background: var(--color-panel);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.panel p {
+  margin: 0.5rem 0;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  color: var(--color-accent);
+  font-size: 2.5rem;
+  line-height: 1.1;
+}
+
+h2 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.panel > h2:first-child {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.controls {
+  margin: 1rem 0 1.25rem;
+  padding: 0;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  list-style: none;
+}
+
+.controls li + li {
+  margin-top: 0.25rem;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0 0.35em;
+  border: 1px solid var(--color-panel-border);
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+}
+
+.hint {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* ---------- 6. Buttons ---------- */
+.button {
+  display: inline-block;
+  min-width: 10rem;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: var(--color-accent-dark);
+  background: var(--color-accent-dark);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.button-secondary:hover {
+  background: rgba(255, 213, 74, 0.15);
+}
+
+/* ---------- 7. Round over: score and name ---------- */
+.final {
+  font-size: 1.25rem;
+}
+
+.final strong {
+  color: var(--color-accent);
+  font-size: 1.75rem;
+}
+
+.new-best {
+  display: inline-block;
+  padding: 0.25rem 0.875rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 800;
+}
+
+.score-form {
+  margin: 1rem 0 0.5rem;
+  text-align: left;
+}
+
+.score-form label {
+  display: block;
+  font-weight: 700;
+}
+
+.score-form-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.score-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #8ea0c9;
+  border-radius: 12px;
+  background: #0d1d45;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.score-form .button {
+  min-width: 0;
+  padding: 0.5rem 1.25rem;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--color-error) !important;
+}
+
+.field-error {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.save-message:empty {
+  display: none;
+}
+
+/* ---------- 8. The top 10 ---------- */
+.leaderboard {
+  margin: 0;
+  padding: 0;
+  counter-reset: rank;
+  list-style: none;
+  text-align: left;
+}
+
+.leaderboard li {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 8px;
+  counter-increment: rank;
+}
+
+.leaderboard li::before {
+  content: counter(rank) ".";
+  min-width: 1.75rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard li:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.leaderboard-name {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.leaderboard-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard .is-you {
+  outline: 2px solid var(--color-accent);
+  background: rgba(255, 213, 74, 0.22);
+}
+
+.leaderboard .leaderboard-message {
+  justify-content: center;
+  background: none;
+  color: var(--color-muted);
+}
+
+.leaderboard .leaderboard-message::before {
+  content: none;
+}
+
+/* ---------- 9. Plain pages: the permission check and "not found" ---------- */
+body.page {
+  display: block;
+  height: auto;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+.page main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.page h1 {
+  font-size: 2rem;
+}
+
+.page a {
+  color: var(--color-accent);
+}
+
+.small-print {
+  margin-top: 1.25rem !important;
+  font-size: 0.875rem;
+}
+
+.small-print a,
+.prose a {
+  color: var(--color-accent);
+}
+
+.prose h2 {
+  margin-top: 2rem;
+}
+
+mark {
+  padding: 0 0.2em;
+  border-radius: 3px;
+  background: #ffe58f;
+  color: #1b1300;
+}
+
+.template-note {
+  padding: 1rem;
+  border: 2px dashed #c9a227;
+  border-radius: 12px;
+  background: rgba(255, 229, 143, 0.12);
+}
+
+.check-results {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.check-results li {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-panel-border);
+  border-radius: 10px;
+  background: var(--color-panel);
+}
+
+.check-results .pass {
+  border-color: #7ee2a8;
+}
+
+.check-results .fail {
+  border-color: var(--color-error);
+}
+
+.check-summary {
+  font-weight: 700;
+}

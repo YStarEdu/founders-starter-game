@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Star Catcher</title>
+    <meta name="description" content="Catch the falling stars! A quick browser game with a top-10 leaderboard. Three misses and the round is over." />
+    <meta property="og:site_name" content="Star Catcher" />
+    <meta property="og:title" content="Star Catcher" />
+    <meta property="og:description" content="Catch the falling stars. Three misses and the round is over. Can you make the top 10?" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#081633" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <main class="game">
+      <!-- The game is drawn here by src/game.js and src/draw.js. -->
+      <canvas id="canvas" role="img" aria-label="The game: stars fall from the top toward your basket"></canvas>
+
+      <!-- The heads-up display: score, best, lives, pause and sound. -->
+      <div class="hud">
+        <p class="stat"><span class="stat-label">Score</span> <strong id="score">0</strong></p>
+        <p class="stat"><span class="stat-label">Best</span> <strong id="best">0</strong></p>
+        <p class="stat"><span class="stat-label">Lives</span> <span class="lives" id="lives" aria-label="3 lives left">★★★</span></p>
+        <button class="icon-button" id="pause-button" type="button" aria-label="Pause" title="Pause (P)" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+        </button>
+        <button class="icon-button" id="sound-button" type="button" aria-label="Sound" aria-pressed="false" title="Sound on or off">
+          <svg class="icon-sound-off" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9h4l5-4v14l-5-4H4z" />
+            <path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <svg class="icon-sound-on" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9h4l5-4v14l-5-4H4z" />
+            <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- The start screen. -->
+      <section class="screen" id="start-screen" aria-labelledby="title">
+        <div class="panel">
+          <h1 id="title">Star Catcher</h1>
+          <p>Catch the falling stars. Miss three and the round is over. Every 10 points, it gets faster.</p>
+          <ul class="controls">
+            <li><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> to move</li>
+            <li>On a phone: drag or tap</li>
+            <li><kbd>P</kbd> or <kbd>Esc</kbd> to pause</li>
+          </ul>
+          <button class="button" id="play-button" type="button">Play</button>
+          <h2>Top 10</h2>
+          <ol class="leaderboard" role="list"></ol>
+          <p class="small-print"><a href="/privacy.html">Privacy</a></p>
+        </div>
+      </section>
+
+      <!-- The pause screen. -->
+      <section class="screen" id="pause-screen" aria-labelledby="paused-title" hidden>
+        <div class="panel">
+          <h2 id="paused-title">Paused</h2>
+          <button class="button" id="resume-button" type="button">Resume</button>
+          <p class="hint">Or press <kbd>P</kbd> or <kbd>Esc</kbd>.</p>
+        </div>
+      </section>
+
+      <!-- The end of a round: your score, your name for the leaderboard, and the top 10. -->
+      <section class="screen" id="over-screen" aria-labelledby="over-title" hidden>
+        <div class="panel">
+          <h2 id="over-title">Round over</h2>
+          <p class="final">You caught <strong id="final-score">0</strong> <span id="final-unit">stars</span>.</p>
+          <p class="new-best" id="new-best" hidden>New best score!</p>
+          <p id="no-score" hidden>No stars this time. Have another go!</p>
+
+          <form class="score-form" id="score-form" novalidate>
+            <label for="player-name">Your name for the leaderboard</label>
+            <p class="hint" id="name-hint">1 to 12 letters, numbers or spaces. Everyone can see it, so a nickname is best.</p>
+            <div class="score-form-row">
+              <input id="player-name" name="name" type="text" maxlength="12" autocomplete="nickname" spellcheck="false" aria-describedby="name-hint name-error" />
+              <button class="button" id="save-button" type="submit">Save</button>
+            </div>
+            <p class="field-error" id="name-error" hidden></p>
+          </form>
+          <p class="save-message" id="save-message" role="status"></p>
+
+          <button class="button button-secondary" id="again-button" type="button">Play again</button>
+          <h2>Top 10</h2>
+          <ol class="leaderboard" role="list"></ol>
+        </div>
+      </section>
+
+      <!-- Screen readers announce what's written here, like "Round over. You caught 12 stars." -->
+      <p class="visually-hidden" id="announcer" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Permission check · Star Catcher</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/pages/check.js"></script>
+  </head>
+  <body class="page">
+    <!-- Week 5: a page for you, not for players, so the game doesn't link to it.
+         Open it at /check.html. See docs/week-05-permissions.md. -->
+    <main>
+      <h1>Permission check</h1>
+      <p>
+        This page uses your game's public key, so it can only do what any player, or any script, could do.
+        It shows what your database allows.
+      </p>
+
+      <div id="check-local" hidden>
+        <p>You're in local mode, so there's no database to check yet. Connect Supabase in Week 4, then come back.</p>
+      </div>
+
+      <div id="check-ready" hidden>
+        <p>
+          It reads the leaderboard, then tries to save scores that break the rules and to change and delete
+          scores. It never saves a real score. Play one round and save a score first, so there's something to try to change.
+        </p>
+        <p><button class="button" id="run-check" type="button">Run the check</button></p>
+        <ol class="check-results" id="check-results" aria-live="polite"></ol>
+        <p class="check-summary" id="check-summary" role="status" hidden></p>
+      </div>
+
+      <p><a href="/">Back to the game</a></p>
+    </main>
+  </body>
+</html>
